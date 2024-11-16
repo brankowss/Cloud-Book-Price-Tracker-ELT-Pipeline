@@ -29,11 +29,11 @@ Below is an example of how the data might look in the `books.db` and SQLite data
 
 ### books.db & books_data.csv schema as example 
 
-| id | title | author | old_price | discount_price | currency | publisher |
-|----|-------|--------|-----------|----------------|----------|-----------|
-|    |       |        |           |                |          |           |
-|    |       |        |           |                |          |           |
-|    |       |        |           |                |          |           |
+| id | title | author | book_link | discount_price | old_price | currency | publisher |
+|----|-------|--------|-----------|----------------|-----------|----------|-----------|
+|    |       |        |           |                |           |          |           |
+|    |       |        |           |                |           |          |           |
+|    |       |        |           |                |           |          |           |
 
 
 ### Configuration and Settings
