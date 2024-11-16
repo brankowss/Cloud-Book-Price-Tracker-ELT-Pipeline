@@ -10,7 +10,7 @@ To run the project, Docker and Docker Compose are used to set up and execute the
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/your_username/book_scraper_project.git
+    git clone https://github.com/brankowss/Books-Scraper.git
     cd Books-Scraper
     ```
 
