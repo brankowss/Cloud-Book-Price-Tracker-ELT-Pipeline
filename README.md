@@ -11,7 +11,7 @@ To run the project, Docker and Docker Compose are used to set up and execute the
 1. **Clone the repository:**
     ```bash
     git clone https://github.com/your_username/book_scraper_project.git
-    cd booksscraper_project
+    cd Books-Scraper
     ```
 
 2. **Build and start the containers using Docker Compose:**
