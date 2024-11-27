@@ -41,7 +41,4 @@ Below is an example of how the data might look in the `books.db` and SQLite data
 - Data is scraped from three publishers and saved with information such as the book title, author, old price, discount price, currency, and publisher.
 - Scrapy settings have been configured for demonstration purposes, with limits on the number of pages scraped and a delay between requests to avoid overwhelming the server.
 
-### License
-This project is open source and available under the [MIT License](LICENSE).
-
 
