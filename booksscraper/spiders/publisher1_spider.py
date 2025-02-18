@@ -30,12 +30,3 @@ class LagunaSpider(scrapy.Spider):
             domain_parts = url.hostname.split('.')
             item['publisher'] = domain_parts[-2] if len(domain_parts) > 1 else domain_parts[0]
             yield item
-
-#vidi sta ti sve ne treba od foldera itd... trebace ti .gitignore licenca i idemo poslednja provera i push na github i
-#onda menjamo sajt i sliku na X
-#nastavak projekata samo bam bam neki idu na tvoj github pa neka gledaju i cao
-#samo jednostavno kao CV sto si pravio
-#dobro sve proveri
-#14.11.2024.
-
-#proveri ovaj gitignore sta da izbacis i sta ces da stavis u licencu proveri sve pre push-a.
