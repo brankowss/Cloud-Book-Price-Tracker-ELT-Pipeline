@@ -28,5 +28,7 @@ class LagunaSpider(scrapy.Spider):
             # Parse the publisher from the book link URL
             url = urlparse(item['book_link'])
             domain_parts = url.hostname.split('.')
-            item['publisher'] = domain_parts[-2] if len(domain_parts) > 1 else domain_parts[0]
+            item['currency'] = 'RSD'
+            item['publisher'] = domain_parts[-2] if len(domain_parts) > 1 else domain_parts[0]            
+            item['description'] =i.xpath('.//div[@id="podaci-korica"]/div').xpath('string()').getall()
             yield item

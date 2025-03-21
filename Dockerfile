@@ -1,7 +1,7 @@
-FROM python:3.10-slim
+FROM apache/airflow:2.10.0-python3.11
 
 # Set the working directory to the folder where the project is located
-WORKDIR /usr/src/app
+WORKDIR /opt
 
 # Copy the requirements.txt file to the working directory
 COPY requirements.txt .
@@ -12,14 +12,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the remaining files to the directory
 COPY . .
 
-# Copy run_spiders.sh and set executable permissions
-COPY run_spiders.sh .
-RUN chmod +x run_spiders.sh
+# Switch to root to modify permissions
+USER root
+RUN chmod -R 777 /opt/booksscraper 
 
-# Run the script to start all spiders
-CMD ./run_spiders.sh
+# Switch back to airflow user for security
+USER airflow
 
-
+CMD ["bash"]
 
 
 

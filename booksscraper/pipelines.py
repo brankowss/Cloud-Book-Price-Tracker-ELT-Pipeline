@@ -1,108 +1,102 @@
-import sqlite3
+import os
+from dotenv import load_dotenv
+import psycopg2
+from psycopg2 import sql
 from itemadapter import ItemAdapter
-import csv
-import re
-import html
+import logging
 
-def clean_price_format_1(price_str):
-    """Cleans prices like '2.560,00 RSD'"""
-    if not price_str:
-        return 0.0
-    price_str = html.unescape(price_str)
-    cleaned_str = re.sub(r'[^\d,]', '', price_str).replace(',', '.')
-    return round(float(cleaned_str), 2)
+# Configure logging
+logging.basicConfig(filename='scraper.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def clean_price_format_2(price_str):
-    """Cleans prices like '549.00 din' or '770.00 RSD'"""
-    if not price_str:
-        return 0.0
-    price_str = html.unescape(price_str)
-    cleaned_str = re.sub(r'[^\d.]', '', price_str)
-    return round(float(cleaned_str), 2)
+# Load environment variables
+load_dotenv()
 
-def clean_price_format_3(price_str):
-    """Cleans prices like '1,320.50 RSD'"""
-    if not price_str:
-        return 0.0
-    price_str = html.unescape(price_str)
-    cleaned_str = re.sub(r'[^\d,.]', '', price_str).replace(',', '')
-    return round(float(cleaned_str), 2)
+# PostgreSQL credentials
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT')
 
+# Database connection function
+def connect_to_postgres():
+    try:
+        conn = psycopg2.connect(
+            dbname=POSTGRES_DB,
+            user=POSTGRES_USER,
+            password=POSTGRES_PASSWORD,
+            host=POSTGRES_HOST,
+            port=POSTGRES_PORT
+        )
+        return conn
+    except psycopg2.Error as e:
+        logging.error(f"Error connecting to database: {e}")
+        return None  # Return None if connection fails
 
-class SQLitePipeline:
+class PostgreSQLPipeline:
     def open_spider(self, spider):
-        # Creates a connection to the SQLite database
-        self.conn = sqlite3.connect('/data/books.db')
-        self.cursor = self.conn.cursor()
-        
-        # Creates the "books" table if it does not exist
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS books (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+        self.conn = connect_to_postgres()
+        if self.conn:
+            self.cursor = self.conn.cursor()
+            self.create_table()
+        else:
+            raise Exception("Failed to connect to database. Spider will be closed.")
+
+    def create_table(self):
+        """Creates the books_data_raw if it doesn't exist."""
+        create_table_query = '''
+            CREATE TABLE IF NOT EXISTS books_data_raw (
+                id SERIAL PRIMARY KEY,
                 title TEXT,
                 author TEXT,
-                book_link TEXT,
-                old_price REAL,
-                discount_price REAL,
-                currency TEXT DEFAULT 'RSD',
-                publisher TEXT
+                book_link TEXT, 
+                old_price TEXT,
+                discount_price TEXT,
+                currency TEXT,
+                publisher TEXT,
+                description TEXT,
+                scraped_at TIMESTAMP DEFAULT NOW()
             )
-        ''')
+        '''
+        self.cursor.execute(create_table_query)
+        self.conn.commit()
 
     def close_spider(self, spider):
-        #Fetch all data
-        self.cursor.execute('''
-            SELECT title, author, book_link, old_price, discount_price, currency, publisher
-            FROM books
-        ''')
-        
-        # Fetch the data
-        rows = self.cursor.fetchall()
-
-        # Close the connection after fetching the data
-        self.conn.commit()
-        self.conn.close()
-
-        # Saved the fetched data into a CSV file
-        with open('/data/books_data.csv', mode='w', newline='', encoding='utf-8') as csv_file:
-            csv_writer = csv.writer(csv_file)
-            csv_writer.writerow(['title', 'author', 'book_link', 'old_price', 'discount_price', 'currency', 'publisher'])
-            for row in rows:
-                csv_writer.writerow(row)
+        if hasattr(self, 'conn') and self.conn:
+            self.cursor.close()
+            self.conn.close()
 
     def process_item(self, item, spider):
-        # Converts `item` to dictionary using ItemAdapter
+        if not hasattr(self, 'conn') or not self.conn:
+            logging.error("Database connection not available. Item processing failed.")
+            return item
+
         adapter = ItemAdapter(item)
-        adapter['currency'] = 'RSD'  # Default currency
 
-        # **Data cleaning**:
-        # If the value is None or empty, set a default value
-        adapter['title'] = adapter.get('title') if adapter.get('title') else 'N/A'
-        adapter['author'] = adapter.get('author') if adapter.get('author') else 'Unknown'
-        adapter['publisher'] = adapter.get('publisher') if adapter.get('publisher') else 'Unknown'
+        try:
+            insert_query = sql.SQL('''
+                INSERT INTO books_data_raw (title, author, book_link, old_price, discount_price, currency, publisher, description)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''')
+            
+            values = (
+                str(adapter.get('title')),
+                str(adapter.get('author')),
+                str(adapter.get('book_link')),
+                str(adapter.get('old_price')),
+                str(adapter.get('discount_price')),
+                str(adapter.get('currency')),  
+                str(adapter.get('publisher')),
+                str(adapter.get('description'))
+            )
 
-        if spider.name == 'mikrok':
-            item['old_price'] = clean_price_format_1(item.get('old_price', ''))
-            item['discount_price'] = clean_price_format_1(item.get('discount_price', ''))
-        elif spider.name == 'laguna':
-            item['old_price'] = clean_price_format_2(item.get('old_price', ''))
-            item['discount_price'] = clean_price_format_2(item.get('discount_price', ''))
-        elif spider.name == 'prometej':
-            item['old_price'] = clean_price_format_3(item.get('old_price', ''))
-            item['discount_price'] = clean_price_format_3(item.get('discount_price', ''))
-      
-        # Insert data into SQLite database
-        self.cursor.execute('''
-            INSERT INTO books (title, author, book_link, old_price, discount_price, currency, publisher)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            adapter['title'],
-            adapter['author'],
-            adapter['book_link'],
-            adapter['old_price'],
-            adapter['discount_price'],
-            adapter['currency'], 
-            adapter['publisher']
-        ))
+            self.cursor.execute(insert_query, values)
+            self.conn.commit()
+
+            logging.info(f"Inserted data: {values}")
+
+        except psycopg2.Error as e:
+            self.conn.rollback()
+            logging.error(f"Database insertion error: {e}")
 
         return item

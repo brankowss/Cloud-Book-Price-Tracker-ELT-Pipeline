@@ -6,6 +6,11 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import os
+from dotenv import load_dotenv
+
+# Učitaj .env fajl
+load_dotenv()
 
 BOT_NAME = "booksscraper"
 
@@ -59,11 +64,13 @@ ROBOTSTXT_OBEY = True
 #EXTENSIONS = {
 #    "scrapy.extensions.telnet.TelnetConsole": None,
 #}
-
+EXTENSIONS = {
+    'booksscraper.scraping_stats.StatsToPostgres': 500,
+}
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "booksscraper.pipelines.SQLitePipeline": 300,
+   "booksscraper.pipelines.PostgreSQLPipeline": 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -113,14 +120,14 @@ AUTOTHROTTLE_MAX_DELAY = 10  # The maximum delay in seconds
 AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0  # The average number of requests to send concurrently
 
 # Set a page limit to stop crawling after a certain number of pages (for the demonstration purposes)
-CLOSESPIDER_PAGECOUNT = 3 # Stop after crawling 3 pages
+CLOSESPIDER_PAGECOUNT = 5 # Stop after crawling 5 pages
+CLOSESPIDER_ITEMCOUNT = 5
+# # Set the feed format to CSV for easy data export and presentation
+# FEED_FORMAT = 'csv'  # The format for the output feed, using CSV for simplicity
+# FEED_URI = '/opt/data/books_data.csv'  # The output file name for the scraped data
 
-# Set the feed format to CSV for easy data export and presentation
-FEED_FORMAT = 'csv'  # The format for the output feed, using CSV for simplicity
-FEED_URI = '/data/books_data.csv'  # The output file name for the scraped data
-
-# Specify the order of the columns in the exported feed.
-FEED_EXPORT_FIELDS = ['title', 'author', 'book_link', 'discount_price', 'old_price', 'currency', 'publisher']  # Order of columns
+# # Specify the order of the columns in the exported feed.
+# FEED_EXPORT_FIELDS = ['title', 'author', 'book_link', 'discount_price', 'old_price', 'currency', 'publisher', 'description']  # Order of columns
 
 # Disable specific middleware that is not necessary for this project or is causing issues.
 # In this case, the 'OffsiteMiddleware' prevents scraping of websites outside the allowed domain.

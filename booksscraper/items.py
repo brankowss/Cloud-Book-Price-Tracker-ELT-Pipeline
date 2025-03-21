@@ -9,3 +9,4 @@ class BookItem(scrapy.Item):
     discount_price = scrapy.Field()
     currency = scrapy.Field()
     publisher = scrapy.Field() 
+    description = scrapy.Field()
