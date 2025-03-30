@@ -44,8 +44,6 @@ def send_telegram_message(context, message):
     except requests.exceptions.RequestException as e:
         print(f"Failed to send Telegram notification: {str(e)}")
 
-from datetime import timedelta
-
 def _alert(context):
     """Sends formatted Telegram alert on task failure"""
     execution_date_utc = context.get('execution_date')
