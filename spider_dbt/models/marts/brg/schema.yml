@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: brg_book_author
+    description: "Bridge table that connects books and authors (many-to-many relationship)."
+    tests:  # Table-level test
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - book_id
+            - author_id
+
+    columns:
+      - name: book_id
+        description: "Foreign key referencing dim_books."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_books')
+              field: book_id
+
+      - name: author_id
+        description: "Foreign key referencing dim_authors."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_authors')
+              field: author_id
+

@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: fct_book_prices
+    description: "Fact table that tracks daily book prices."
+    columns:
+      - name: book_price_daily_pk
+        description: "Surrogate primary key for daily price record."
+        tests:
+          - unique
+          - not_null
+      - name: book_id
+        description: "Foreign key to dim_books."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_books')
+              field: book_id
+      - name: date_id
+        description: "Foreign key to dim_date."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_id
+      - name: publisher_id
+        description: "Foreign key to dim_publishers.  "
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+      - name: currency
+        description: "Price currency."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['RSD']
+      - name: old_price
+        description: "Old price."
+        # Have singular test for this column.
+      - name: discount_price
+        description: "Discounted price."
+        tests:
+          - not_null
+      - name: max_scraped_at
+        description: "Timestamp of the last scan for this book/date record (used for incremental)."
+        tests:
+          - not_null

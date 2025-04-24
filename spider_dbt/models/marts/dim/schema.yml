@@ -1,0 +1,108 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Date dimension with various attributes for time-based analysis."
+    columns:
+      - name: date_id
+        description: "Primary key (YYYYMMDD format)."
+        tests:
+          - unique
+          - not_null
+      - name: full_date
+        description: "Full date."
+        tests:
+          - unique
+          - not_null
+      - name: day_of_month
+        description: "Day of the month (1–31)."
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                      11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+               21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+      - name: month_of_year
+        description: "Month of the year (1–12)."
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      - name: year
+        description: "Year (e.g. 2025)."
+      - name: quarter_of_year
+        description: "Quarter of the year (1–4)."
+      - name: day_name
+        description: "Day name of the week (localized)."
+      - name: day_of_week_iso
+        description: "ISO day of week (Monday=1, Sunday=7)."
+      - name: is_weekend
+        description: "Boolean flag if the day is a weekend (Saturday or Sunday)."
+
+  - name: dim_authors
+    description: "Book authors dimension. Contains placeholder '(Unknown Author)'."
+    columns:
+      - name: author_id
+        description: "Surrogate primary key for the author."
+        tests:
+          - unique
+          - not_null
+      - name: author_name
+        description: "Author’s full name or placeholder '(Unknown Author)'."
+        tests:
+          - not_null 
+
+  - name: dim_publishers
+    description: "Book publishers dimension. May contain 'Unknown' if coming from staging."
+    columns:
+      - name: publisher_id
+        description: "Surrogate primary key for the publisher."
+        tests:
+          - unique
+          - not_null
+      - name: publisher_name
+        description: "Publisher name."
+        tests:
+          - not_null 
+
+  - name: dim_books
+    description: "Books dimension, contains the latest known attributes for each book_id."
+    columns:
+      - name: book_id
+        description: "PK (natural key from the source)."
+        tests:
+          - unique
+          - not_null
+      - name: publisher_id
+        description: "FK to dim_publishers."
+        tests:
+          - not_null 
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+      - name: title
+        description: "Book title."
+        tests:
+          - not_null
+      - name: category
+        description: "Book/article category (can be NULL)."
+        # There is NO not_null test here, validation is done with a singular test 
+      - name: isbn
+        description: "Cleaned ISBN or NULL if unavailable."
+        tests:
+          - unique:
+              config:
+                where: "isbn IS NOT NULL"
+      - name: script_type
+        description: "Extracted script type (Latin, Cyrillic, or NULL)."
+        tests:
+          - accepted_values: # Only tests lines where script_type is NOT NULL
+              values: ['Latinica', 'Ćirilica']
+      - name: page_numbers
+        description: "Extracted number of pages (integer, can be NULL)."
+        # There is no not_null test. The test that it is > 0 goes into singular tests.
+      - name: year_of_publication
+        description: "Extracted year of publication (can be NULL)."
+        # There is no not_null test. The scope test goes into singular tests.
+      - name: last_scraped_at
+        description: "Timestamp of the last scan when this data was captured."
+      - name: dbt_last_processed_at
+        description: "Timestamp when the row was last updated."

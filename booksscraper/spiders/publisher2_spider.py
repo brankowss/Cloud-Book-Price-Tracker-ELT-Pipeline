@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 class MikrokSpider(scrapy.Spider):
     name = "mikrok"
-    allowed_domains = ["https://www.mikroknjiga.rs"]
+    allowed_domains = ["www.mikroknjiga.rs"]
     start_urls = ["https://www.mikroknjiga.rs/store/index.php?IDvrste=1&o=2303&oblast=Ra%C4%8Dunari%20i%20Internet"]
 
 
@@ -14,7 +14,7 @@ class MikrokSpider(scrapy.Spider):
         for k in kv:
             item = BookItem()
             item['title'] = k.xpath('.//span[@style="font-size:15px;"]/text()').get()
-            item['author'] = k.xpath('.//td//i/text()').get()
+            item['author'] = k.xpath('.//td//i/text()').get() or '' # ovo je dobro for or koristi svuda!
             item['book_link'] = k.xpath('.//td//a/span[@style="font-size:15px;"]/../@href').get()
             item['old_price'] = k.xpath('.//td//strike/text()').get()
             item['discount_price'] = k.xpath('.//td//font[@color="#ff00ff"]/b/text()').get()
@@ -35,8 +35,8 @@ class MikrokSpider(scrapy.Spider):
             yield response.follow(next_page, callback=self.parse)
 
     def parse_book_page(self, response):
-        """Scrapuje stranicu knjige i dodaje opis u podatke."""
+        """Scrape book page description and book category."""
         item = response.meta['item']
         item['description'] = response.xpath('//div[@class="prikaz_k2"]//span[@class="prikaz_opis"]').xpath('string()').get()
-
+        item['category'] = response.xpath('(//div[@class="prikaz"]/div/a/text())[2]').get()
         yield item

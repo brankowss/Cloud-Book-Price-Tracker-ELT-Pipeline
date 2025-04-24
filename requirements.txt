@@ -1,9 +1,14 @@
-scrapy
+boto3==1.28.21
+scrapy==2.11.0
+dbt-postgres~=1.9.0  
+dbt-core
 psycopg2-binary
 python-dotenv
 apache-airflow
 apache-airflow-providers-docker
 apache-airflow-providers-postgres
-sqlalchemy
+apache-airflow-providers-telegram
+apache-airflow-providers-amazon
 requests
+pytz
 

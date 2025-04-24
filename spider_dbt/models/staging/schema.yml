@@ -1,0 +1,71 @@
+# models/staging/schema.yml
+version: 2
+
+models:
+  - name: stg_books
+    description: "Cleaned and standardized data. NULL values are allowed for optional fields."
+    columns:
+      # Category 1: Must not be NULL
+      - name: book_id
+        description: "Unique book ID (from the source)."
+        tests:
+          - not_null 
+
+      - name: scraped_at
+        description: "The original scan timestamp."
+        tests:
+          - not_null
+
+      - name: book_link
+        description: "Link to the book."
+        tests:
+          - not_null
+
+      - name: title
+        description: "Cleaned up book title."
+        tests:
+          - not_null
+
+      - name: currency
+        description: "Currency (always RSD)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['RSD']
+
+      - name: updated_at
+        description: "Timestamp of when dbt last processed the row."
+        tests:
+          - not_null
+
+      # Category 2: Should not be NULL (but can be due to source)
+      - name: publisher
+        description: "Final name of the publisher."
+
+      - name: discount_price 
+        description: "Discount price."
+
+      # Category 3: Can be NULL
+      - name: author
+        description: "Original author string (can be NULL)."
+
+      - name: script_type
+        description: "Pulled out letter (Latinica, Ćirilica, or NULL)."
+        tests:
+          - accepted_values:
+              values: ['Latinica', 'Ćirilica']
+
+      - name: page_numbers
+        description: "Number of pages retrieved (integer, can be NULL)."
+
+      - name: year_of_publication
+        description: "Extracted publication year (can be NULL)."
+
+      - name: category
+        description: "Book category (can be NULL)."
+
+      - name: old_price
+        description: "Cleaned old price (numeric, can be NULL)."
+
+   
+

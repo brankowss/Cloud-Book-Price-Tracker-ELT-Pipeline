@@ -1,26 +1,10 @@
 version: "3.9"
 
 services:
-  postgres:
-    image: postgres:15
-    env_file:
-      - .env
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   airflow-webserver:
-    build: .  
-    restart: "no"
-    depends_on:
-      postgres:
-        condition: service_healthy
+    build: .
+    restart: unless-stopped
+    env_file: .env
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${AIRFLOW_DATABASE_CONN}
@@ -29,23 +13,20 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
-      - ./booksscraper:/opt/booksscraper  
-      - ./sql:/opt/sql  
-      - ./modeling:/opt/modeling  
-      - ./tests:/opt/tests  
+      - ./booksscraper:/opt/booksscraper
+      - ./spider_dbt:/opt/spider_dbt
     ports:
       - "8080:8080"
     command: >
       bash -c "airflow db init &&
       airflow users create -u admin -p admin -f Admin -l User -r Admin -e admin@example.com || true &&
-      airflow variables set sql_template_search_path '/opt/sql:/opt/modeling' &&
       airflow webserver"
 
   airflow-scheduler:
     build: .
-    restart: "no"
+    restart: unless-stopped
+    env_file: .env
     depends_on:
-      - postgres
       - airflow-webserver
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
@@ -55,12 +36,8 @@ services:
       - ./airflow/logs:/opt/airflow/logs
       - ./airflow/plugins:/opt/airflow/plugins
       - ./booksscraper:/opt/booksscraper
-      - ./sql:/opt/sql
-      - ./modeling:/opt/modeling  
-      - ./tests:/opt/tests  
+      - ./spider_dbt:/opt/spider_dbt
     command: scheduler
 
-volumes:
-  postgres_data:
 
 

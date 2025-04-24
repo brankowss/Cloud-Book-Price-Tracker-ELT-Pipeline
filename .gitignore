@@ -1,5 +1,18 @@
-# Ignore Python cache files
-__pycache__/
+# DBT build artifacts
+target/
+dbt_packages/
+logs/
+.user.yml
 
-# Environment files
+# DBT cloud or local metadata
+dbt_modules/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment config
 .env
+
+# System files
+.DS_Store

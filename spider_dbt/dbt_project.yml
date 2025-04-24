@@ -1,0 +1,22 @@
+name: 'spider_dbt'
+version: '1.0.0'
+config-version: 2
+
+profile: 'spider_dbt'  
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+models:
+  spider_dbt:
+    staging:
+      +schema: dbt
+      +materialized: view
+      +tags: ["staging"]
+    intermediate:
+      +schema: dbt
+      +materialized: view
+    marts:
+      +schema: dbt
+      +materialized: table

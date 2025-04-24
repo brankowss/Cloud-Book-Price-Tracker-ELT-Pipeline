@@ -1,0 +1,77 @@
+# models/staging/sources.yml 
+
+version: 2
+
+sources:
+  - name: raw
+    schema: raw 
+    description: "Original data from PostgreSQL database, populated by Scrapy spiders."
+    
+    tables:
+      - name: books_data_raw
+        description: "Raw scraped data containing books, prices, and metadata."
+
+        # Freshness test to ensure pipeline is alive and data is recent
+        loaded_at_field: scraped_at
+
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 25, period: hour}
+
+        columns:
+          - name: id
+            description: "Unique identifier for each book entry."
+            tests:
+              - unique
+              - not_null
+
+          - name: title
+            description: "Title of the book."
+            tests:
+              - not_null
+
+          - name: author
+            description: "Author(s) of the book. Some entries may be missing for children's books or games."
+            # (intentionally no test here for now)
+
+          - name: book_link
+            description: "Unique URL linking to the book page."
+            tests:
+              - not_null
+              # - unique 
+
+          - name: category
+            description: "Book category."
+
+          - name: old_price 
+            description: "Original price before any discount."
+            # Test for presence and positivity is implemented as a singular test (custom SQL)
+
+          - name: discount_price
+            description: "Discounted price currently shown on the book page."
+            tests:
+              - not_null
+
+          - name: currency
+            description: "Currency in which the price is displayed."
+            tests:
+              - accepted_values:
+                  values: ['RSD'] # Only currency allowed in this moment is 'RSD'
+
+          - name: publisher
+            description: "Publisher of the book."
+            tests:
+              - not_null  
+
+          - name: description
+            description: "Book description or marketing blurb."
+            # Added for documentation purposes only; no tests needed since it's dropped in staging.
+
+          - name: scraped_at
+            description: "Timestamp when the data was scraped and inserted into the raw table."
+            tests:
+              - not_null
+
+
+
+

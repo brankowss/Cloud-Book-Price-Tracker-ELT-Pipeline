@@ -5,6 +5,7 @@ class BookItem(scrapy.Item):
     title = scrapy.Field()
     author = scrapy.Field()
     book_link = scrapy.Field()
+    category = scrapy.Field()
     old_price = scrapy.Field()
     discount_price = scrapy.Field()
     currency = scrapy.Field()

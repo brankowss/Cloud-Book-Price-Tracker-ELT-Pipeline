@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 class LagunaSpider(scrapy.Spider):
     name = "laguna"
-    allowed_domains = ["www.laguna.rs"]
+    allowed_domains = ["laguna.rs", "www.laguna.rs"]
     start_urls = ["https://www.laguna.rs/s1_laguna_knjige_spisak_naslova.html"]
 
     def parse(self, response):
@@ -19,12 +19,13 @@ class LagunaSpider(scrapy.Spider):
         for i in response.xpath('//body[@id="knjiga_page"]'):
             item = BookItem()
             item['title'] = i.xpath('(//h1[@class="naslov"])[3]/text()').get() 
-            item['author'] = i.xpath('(//h2[1]/a)[1]/text()').get() 
+            item['author'] = i.xpath('(//h2[1]/a)[1]/text()').get() or '' 
             book_link = response.xpath('.//a[@class="komentar-podatak"]/@href').get()
             prefix = "https://www.laguna.rs/"
             item['book_link'] = prefix + book_link if book_link else None
-            item['old_price'] = i.xpath('(//div[@class="cena"]/p[1]/text())[1]').get()
-            item['discount_price'] = i.xpath('(//span[@class="naslov"]/following-sibling::text())[8]').get()
+            item['category'] = i.xpath('//span[@class="naslov_podatka"]/following-sibling::h3/a/text()').get()
+            item['old_price'] = i.xpath('(//div[@class="cena"]//span[@class="naslov"]/following-sibling::text())[1]').get()
+            item['discount_price'] = i.xpath('(//div[@class="cena"]//span[@class="naslov"]/following-sibling::text())[2]').get()
             # Parse the publisher from the book link URL
             url = urlparse(item['book_link'])
             domain_parts = url.hostname.split('.')

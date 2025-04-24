@@ -1,0 +1,54 @@
+# models/intermediate/schema.yml
+version: 2
+
+models:
+  - name: int_books_metadata
+    description: "Intermediate model that splits authors from a string and joins them back with book details. Granularity: one row per book per author per scan (rows are multiplied for books with multiple authors)."
+    columns:
+      - name: book_id
+        description: "Book ID from the staging layer."
+        tests:
+          - not_null
+      - name: author_name
+        description: "Name of a single author associated with the book (or '(Unknown Author)')."
+        tests:
+          - not_null
+          # Optionally, add test to check for non-empty string:
+          # - dbt_utils.expression_is_true:
+          #     expression: "length(author_name) > 0"
+      - name: title
+        description: "Book title from the staging layer."
+        tests:
+          - not_null
+      - name: category
+        description: "Book category from the staging layer."
+      - name: year_of_publication
+        description: "Year of publication from the staging layer (can be NULL)."
+      - name: script_type
+        description: "Script type from the staging layer (can be NULL)."
+      - name: page_numbers
+        description: "Number of pages from the staging layer (can be NULL)."
+      - name: publisher_name
+        description: "Final publisher name from the staging layer."
+        tests:
+          - not_null
+      - name: currency
+        description: "Currency from the staging layer (should always be 'RSD')."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['RSD']
+      - name: old_price
+        description: "Original book price from the staging layer (numeric, can be NULL)."
+      - name: discount_price
+        description: "Discounted book price from the staging layer (numeric, can't be NULL)."
+        tests:
+          - not_null
+      - name: scraped_at
+        description: "Timestamp of scraping from the staging layer."
+        tests:
+          - not_null
+      - name: updated_at  
+        description: "Timestamp when the record was last updated."
+        tests:
+          - not_null
