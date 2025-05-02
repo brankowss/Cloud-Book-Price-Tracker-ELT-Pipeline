@@ -186,6 +186,7 @@ final_selection AS (
       cf.page_numbers,
       cf.year_of_publication
   FROM calculated_fields cf
+  WHERE cf.cleaned_old_price IS NOT NULL OR cf.cleaned_discount_price IS NOT NULL -- Keep only rows where at least one price exists
 )
 
 SELECT * FROM final_selection

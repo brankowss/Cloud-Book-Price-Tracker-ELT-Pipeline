@@ -93,8 +93,8 @@ EXTENSIONS = {
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 # Set a page limit to stop crawling after a certain number of pages (for the demonstration purposes)
-# CLOSESPIDER_PAGECOUNT = 12 # Stop after crawling 15 pages
-# CLOSESPIDER_ITEMCOUNT = 12
+CLOSESPIDER_PAGECOUNT = 2 # Stop after crawling 2 pages for testing purpose using small sample 
+CLOSESPIDER_ITEMCOUNT = 2
 # Disable image downloading to save bandwidth and time during the demonstration
 IMAGES_ENABLED = False
 

@@ -1,5 +1,4 @@
 prod:
-  target: prod
   outputs:
     prod:
       type: postgres

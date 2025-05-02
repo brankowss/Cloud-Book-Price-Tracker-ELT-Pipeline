@@ -147,7 +147,8 @@ def success_notification(**context):
 with DAG(
     dag_id='book_ingestion_and_transformation',
     default_args=default_args,
-    schedule_interval='30 0 * * *',  # 00:30 UTC = 01:30 in Belgrade,
+    # schedule_interval='10 22 * * *', # 10 minutes, 22 hours (UTC), every day, every month, every day of the week Belgrade Summer TIMEZONE 00:10h
+    schedule_interval=None,
     catchup=False,
     max_active_runs=1,
     doc_md="""
