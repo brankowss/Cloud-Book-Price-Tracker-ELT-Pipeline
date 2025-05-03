@@ -91,7 +91,7 @@ Create the necessary infrastructure components within your preferred AWS Region 
 3.  **Clone Your Project Repository:**
     ```bash  
     git clone https://github.com/brankowss/Cloud-Book-Price-Tracker-ELT-Pipeline.git  
-    cd Books-Scraper  
+    cd Cloud-Book-Price-Tracker-ELT-Pipeline  
     ```
 
 4.  **Configure Environment Variables:**
