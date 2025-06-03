@@ -7,7 +7,7 @@
 
 WITH source_data AS (
     SELECT
-        md5(trim(s.book_link)) AS book_id, -- ovo je staro  s.id::INT AS book_id
+        md5(trim(s.book_link)) AS book_id, 
         TRIM(s.title)::TEXT AS title,
         CASE
             WHEN s.author IS NULL THEN 'Nepoznat Autor'
