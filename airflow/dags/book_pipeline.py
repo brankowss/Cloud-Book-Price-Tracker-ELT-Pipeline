@@ -192,10 +192,8 @@ with DAG(
                 run_timestamp TIMESTAMPTZ DEFAULT (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + INTERVAL '2 hours'
             );
 
-            -- Dodaj i CREATE SCHEMA IF NOT EXISTS dbt_dbt; (ili koja ti je target šema za dbt)
             CREATE SCHEMA IF NOT EXISTS dbt_dbt; 
 
-            -- Dodaj i CREATE SCHEMA IF NOT EXISTS snapshots; (ako koristiš snapshotove)
             -- CREATE SCHEMA IF NOT EXISTS snapshots; later in project  
         """
     )
